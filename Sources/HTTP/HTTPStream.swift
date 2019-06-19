@@ -52,6 +52,9 @@ open class HTTPStream: NetStream {
         }
         let fileName: String = url.pathComponents.last!
         switch true {
+        case fileName == "all.m3u8":
+            let str = "#EXTM3U\n#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=200000\nplaylist.m3u8"
+            return (.applicationXMpegURL, str)
         case fileName == "playlist.m3u8":
             return (.applicationXMpegURL, tsWriter.playlist)
         case fileName.contains(".ts"):

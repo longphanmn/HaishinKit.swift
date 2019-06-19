@@ -269,6 +269,20 @@ open class HLSService: HTTPService {
             return
         }
     }
+    
+    override open func head(_ request: HTTPRequest, client: NetClient) {
+        var response: HTTPResponse = [
+            // #141
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "GET,HEAD,OPTIONS",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "*",
+            "Content-Type": "audio/x-mpegurl",
+            "Connection": "keep-alive"
+        ]
+        response.statusCode = HTTPStatusCode.ok.description
+        client.doOutput(data: response.data)
+    }
 
     override open func get(_ request: HTTPRequest, client: NetClient) {
         logger.trace("\(request)")
@@ -278,7 +292,8 @@ open class HLSService: HTTPService {
             "Access-Control-Allow-Methods": "GET,HEAD,OPTIONS",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Expose-Headers": "*",
-            "Connection": "close"
+            "Accept-Ranges": "bytes",
+            "Connection": "keep-alive"
         ]
 
         defer {
@@ -308,6 +323,7 @@ open class HLSService: HTTPService {
                     client.doOutputFromURL(URL(fileURLWithPath: resource), length: 8 * 1024)
                 default:
                     response.statusCode = HTTPStatusCode.ok.description
+                    response.headerFields["Content-Type"] = "audio/x-mpegurl"
                     response.body = Data(resource.utf8)
                     client.doOutput(data: response.data)
                 }
